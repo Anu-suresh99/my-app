@@ -169,8 +169,8 @@ const Chat = () => {
                         </Tooltip>
                     </TooltipProvider>
                 </CardHeader>
-                <CardContent className="max-h-[140px] position-relative  flex flex-col-reverse custom-scrollbar text-white">
-                    <div className="space-y-4">
+                <CardContent className="max-h-[140px] position-relative  flex flex-col-reverse  custom-scrollbar text-white">
+                    <div className="space-y-4 ">
                         {messages.map((message, index) => (
                             <div
                                 key={index}

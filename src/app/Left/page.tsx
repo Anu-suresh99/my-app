@@ -1,4 +1,7 @@
 import React from 'react'
+import { BsMic } from 'react-icons/bs'
+import { MdOutlineHeadphones } from "react-icons/md"
+import { IoSettingsOutline } from "react-icons/io5";
 
 const data = [
     {
@@ -26,6 +29,13 @@ const data = [
         time: '11.00am'
     },
 
+]
+const value = [
+    {
+        profile: '/img/Oval.png',
+        name: 'itsdavid_R',
+
+    }
 ]
 
 const Left = () => {
@@ -62,8 +72,23 @@ const Left = () => {
                 </div>
                 <div></div>
             </div>
-            <div></div>
-            <div></div>
+            <div className='bg-gradient-to-l from-zinc-900  to-zinc-950 border-2 h-[60px] w-[500px] rounded-[8px] flex justify-between items-center mt-[65%]'>
+                {value.map((item) => (
+                    <div className='flex justify-between items-center pt-[15px] pb-[15px] pl-[15px] w-[550px] '>
+                        <img
+                            src={item.profile}
+                            alt="Profile Icon"
+                            className="w-10 h-10 rounded-full"
+                        />
+                        <h3 className='font-quicksand text-[20px] font-normal leading-[160%]'>{item.name}</h3>
+                        <div className='flex mr-5'>
+                            <BsMic className="h-6 w-6" />
+                            <MdOutlineHeadphones className="h-6 w-6 ml-2" />
+                            <IoSettingsOutline className="h-6 w-6 ml-2" />
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
     )
 }
