@@ -2,9 +2,10 @@
 import * as React from "react"
 import { useState } from "react"
 import { Check, Plus, Send } from "lucide-react"
+import { GrEmoji } from 'react-icons/gr';
 import axios from 'axios'
 import { cn } from "@/lib/utils"
-import { HiGif } from 'react-icons/hi2'
+import { HiOutlineGif } from 'react-icons/hi2'
 import {
     Avatar,
     AvatarFallback,
@@ -76,19 +77,26 @@ const Chat = () => {
     const [open, setOpen] = React.useState(false)
     const [selectedUsers, setSelectedUsers] = React.useState<User[]>([])
     const [gifUrl, setGifUrl] = useState('');
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
     const [messages, setMessages] = React.useState([
         {
             role: "user",
-            content: "You created a new group chat.",
+            content: "You created a new group chat",
         },
     ])
     const [input, setInput] = React.useState("")
     const inputLength = input.trim().length
 
-    const handleEmojiClick = (emoji: any) => {
-        setInput((prevInput) => prevInput + emoji);
-    }
+
+    const handleEmojiClick = (emojiObject: any) => {
+        setInput((prevInput) => prevInput + emojiObject.emoji);
+        setShowEmojiPicker(false);
+    };
+
+    const handleGrEmojiClick = () => {
+        setShowEmojiPicker((prev) => !prev);
+    };
 
     const handleGifClick = async () => {
         try {
@@ -97,15 +105,23 @@ const Chat = () => {
             );
             const gifData = response.data.data[0];
             const gifUrl = gifData.images.downsized.url;
-            setGifUrl(gifUrl);
+
+            setMessages([
+                ...messages,
+                {
+                    role: "gif",
+                    content: gifUrl,
+                },
+            ]);
         } catch (error) {
-            console.error('Error fetching bbnGIF:', error);
+            console.error('Error fetching GIF:', error);
         }
     };
 
+
     return (
         <>
-            <Card className="h-full pb-5 bg-white rounded-[8px]">
+            <Card className="h-full pb-5 bg-zinc-950 rounded-[8px]">
                 <CardHeader className="flex flex-row ">
                     <div className="flex items-center space-x-4">
                         <div className="flex">
@@ -127,7 +143,7 @@ const Chat = () => {
                                     selectedUsers.map((user) => user.name).join(', ')
                                 )}
                             </p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-muted-foreground text-white">
                                 {selectedUsers.length > 0 ? (
                                     selectedUsers.length > 1 ? "Group Chat" : selectedUsers[0].email
                                 ) : (
@@ -142,34 +158,41 @@ const Chat = () => {
                                 <Button
                                     size="icon"
                                     variant="outline"
-                                    className="ml-auto rounded-full"
+                                    className="ml-auto rounded-full text-white"
                                     onClick={() => setOpen(true)}
                                 >
-                                    <Plus className="h-4 w-4" />
+                                    <Plus className="h-4 w-4 text-white" />
                                     <span className="sr-only">Add users</span>
                                 </Button>
                             </TooltipTrigger>
-                            <TooltipContent sideOffset={10}>Add users</TooltipContent>
+                            <TooltipContent sideOffset={10} className="text-white">Add users</TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="max-h-[140px] position-relative  flex flex-col-reverse custom-scrollbar text-white">
                     <div className="space-y-4">
                         {messages.map((message, index) => (
                             <div
                                 key={index}
                                 className={cn(
-                                    "flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
+                                    "flex w-max max-w-[75%] flex-col gap-2 rounded-[12px]  px-3 py-2 text-sm border ",
                                     message.role === "user"
                                         ? "ml-auto bg-primary text-primary-foreground"
-                                        : "bg-muted"
+                                        : message.role === "gif"
+                                            ? "ml-auto" // Adjust styling for GIF messages
+                                            : "bg-muted"
                                 )}
                             >
-                                {message.content}
+                                {message.role === "gif" ? (
+                                    <img src={message.content} alt="GIF" className="max-w-full" />
+                                ) : (
+                                    message.content
+                                )}
                             </div>
                         ))}
                     </div>
                 </CardContent>
+
                 <CardFooter>
                     <form
                         onSubmit={(event) => {
@@ -186,27 +209,36 @@ const Chat = () => {
                         }}
                         className="flex w-full items-center space-x-2  mt-[60%]"
                     >
+                        <div>
+                            <Button type="button" size="icon" onClick={handleGifClick}>
+                                <HiOutlineGif className="h-8 w-8 text-white" />
+                                <span className="sr-only">Send GIF</span>
+                            </Button>
+                            {gifUrl && (
+                                <img src={gifUrl} alt="GIF" className="h-12 w-12" />
+                            )}
+                        </div>
                         <Input
                             id="message"
                             placeholder="Type your message..."
-                            className="flex-1 bg-zinc-800 text-white "
+                            className="flex-1 bg-zinc-800 text-white rounded-[12px]"
                             autoComplete="off"
                             value={input}
                             onChange={(event) => setInput(event.target.value)}
                         />
-                        <Button type="button" size="icon" onClick={handleGifClick}>
-                            <HiGif className="h-4 w-4" />
-                            <span className="sr-only">Send GIF</span>
-                        </Button>
-                        {gifUrl && (
-                            <img src={gifUrl} alt="GIF" className="h-12 w-12" />
-                        )}
-                        <Button type="button" size="icon">
-                            <EmojiPicker onEmojiClick={handleEmojiClick} />
-                            <span className="sr-only">Open Emoji Picker</span>
-                        </Button>
+                        <div className="relative">
+                            <Button type="button" size="icon" className="w-[200px]" onClick={handleGrEmojiClick}>
+                                <GrEmoji className="h-8 w-8 text-white" />
+                                <span className="sr-only">Open Emoji Picker</span>
+                            </Button>
+                            {showEmojiPicker && (
+                                <div className="absolute bottom-0 right-0 mt-2">
+                                    <EmojiPicker onEmojiClick={handleEmojiClick} />
+                                </div>
+                            )}
+                        </div>
                         <Button type="submit" size="icon" disabled={inputLength === 0}>
-                            <Send className="h-4 w-4" />
+                            <Send className="h-8 w-8 text-white" />
                             <span className="sr-only">Send</span>
                         </Button>
                     </form>
