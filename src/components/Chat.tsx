@@ -169,7 +169,7 @@ const Chat = () => {
                         </Tooltip>
                     </TooltipProvider>
                 </CardHeader>
-                <CardContent className="max-h-[140px] position-relative  flex flex-col-reverse  custom-scrollbar text-white">
+                <CardContent className="max-h-[750px] position-relative  flex flex-col-reverse  custom-scrollbar text-white">
                     <div className="space-y-4 ">
                         {messages.map((message, index) => (
                             <div
@@ -207,7 +207,7 @@ const Chat = () => {
                             ])
                             setInput("")
                         }}
-                        className="flex w-full items-center space-x-2  mt-[60%]"
+                        className="flex w-full items-center space-x-2"
                     >
                         <div>
                             <Button type="button" size="icon" onClick={handleGifClick}>
