@@ -1,5 +1,5 @@
 import React from 'react'
-import Left from '@/app/Left/page'
+import Left from '@/components/Left'
 import Chat from '@/components/Chat'
 
 const First = () => {

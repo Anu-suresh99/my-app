@@ -5,6 +5,7 @@ import { Check, Plus, Send } from "lucide-react"
 import { GrEmoji } from 'react-icons/gr';
 import axios from 'axios'
 import { cn } from "@/lib/utils"
+import GifPicker from 'gif-picker-react'
 import { HiOutlineGif } from 'react-icons/hi2'
 import {
     Avatar,
@@ -47,7 +48,7 @@ const users = [
     {
         name: "Olivia Martin",
         email: "m@example.com",
-        avatar: "/avatars/01.png",
+        avatar: "/img/Oval.png",
     },
     {
         name: "Isabella Nguyen",
@@ -74,20 +75,21 @@ const users = [
 type User = (typeof users)[number]
 
 const Chat = () => {
-    const [open, setOpen] = React.useState(false)
-    const [selectedUsers, setSelectedUsers] = React.useState<User[]>([])
+    const [open, setOpen] = React.useState(false);
+    const [selectedUsers, setSelectedUsers] = React.useState<User[]>([]);
     const [gifUrl, setGifUrl] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [showGifPicker, setShowGifPicker] = useState(false);
 
     const [messages, setMessages] = React.useState([
         {
             role: "user",
             content: "You created a new group chat",
+            timestamp: new Date().getTime(),
         },
-    ])
-    const [input, setInput] = React.useState("")
-    const inputLength = input.trim().length
-
+    ]);
+    const [input, setInput] = React.useState("");
+    const inputLength = input.trim().length;
 
     const handleEmojiClick = (emojiObject: any) => {
         setInput((prevInput) => prevInput + emojiObject.emoji);
@@ -98,26 +100,31 @@ const Chat = () => {
         setShowEmojiPicker((prev) => !prev);
     };
 
-    const handleGifClick = async () => {
-        try {
-            const response = await axios.get(
-                `https://api.giphy.com/v1/gifs/search?q=hi&api_key=jSlLrqTooqLvxaTRldj27jmplyvVXK85&limit=1`
-            );
-            const gifData = response.data.data[0];
-            const gifUrl = gifData.images.downsized.url;
-
-            setMessages([
-                ...messages,
-                {
-                    role: "gif",
-                    content: gifUrl,
-                },
-            ]);
-        } catch (error) {
-            console.error('Error fetching GIF:', error);
+    const handleGifClick = (gifObject: any) => {
+        if (gifObject && gifObject.gif) {
+            const selectedGifUrl = gifObject.gif;
+            setInput((prevInput) => prevInput + selectedGifUrl);
+            setGifUrl(selectedGifUrl);
         }
+        setShowGifPicker(false);
     };
 
+    const handleGrGifClick = () => {
+        setShowGifPicker((prev) => !prev);
+    };
+
+    const handleSendMessage = () => {
+        if (inputLength === 0) return;
+
+        const newMessage = {
+            role: "user",
+            content: input,
+            timestamp: new Date().getTime(),
+        };
+
+        setMessages([...messages, newMessage]);
+        setInput("");
+    };
 
     return (
         <>
@@ -145,11 +152,12 @@ const Chat = () => {
                             </p>
                             <p className="text-sm text-muted-foreground text-white">
                                 {selectedUsers.length > 0 ? (
-                                    selectedUsers.length > 1 ? "Group Chat" : selectedUsers[0].email
+                                    selectedUsers.length > 1 ? "Group Chat" : (selectedUsers[0] && selectedUsers[0].email)
                                 ) : (
                                     "No users selected"
                                 )}
                             </p>
+
                         </div>
                     </div>
                     <TooltipProvider delayDuration={0}>
@@ -169,20 +177,38 @@ const Chat = () => {
                         </Tooltip>
                     </TooltipProvider>
                 </CardHeader>
-                <CardContent className="max-h-[750px] position-relative  flex flex-col-reverse  custom-scrollbar text-white">
+                <CardContent className="max-h-[750px] position-relative  flex flex-col-reverse  custom-scrollbar overflow-auto text-white">
                     <div className="space-y-4 ">
                         {messages.map((message, index) => (
                             <div
                                 key={index}
                                 className={cn(
-                                    "flex w-max max-w-[75%] flex-col gap-2 rounded-[12px]  px-3 py-2 text-sm border mt-[700px] ",
+                                    "flex w-max max-w-[75%] flex-col gap-2 rounded-[12px]  px-3 py-2 text-sm  mt-[700px]",
                                     message.role === "user"
-                                        ? "ml-auto bg-primary text-primary-foreground"
+                                        ? "ml-auto bg-red-900 text-primary-foreground"
                                         : message.role === "gif"
-                                            ? "ml-auto" // Adjust styling for GIF messages
+                                            ? "ml-auto"
                                             : "bg-muted"
                                 )}
                             >
+                                {message.role === "user" && (
+                                    <div className="flex items-center space-x-2 mb-2">
+                                        {/* User Avatar */}
+                                        <Avatar className="border-2 border-background">
+                                            <AvatarImage src={users[0].avatar} alt="Image" />
+                                            <AvatarFallback>{users[0].name[0]}</AvatarFallback>
+                                        </Avatar>
+                                        {/* User Name */}
+                                        <p className="text-sm font-medium leading-none">
+                                            {users[0].name}
+                                        </p>
+                                        {/* Timestamp */}
+                                        <p className="text-xs text-muted-foreground">
+                                            {new Date(message.timestamp).toLocaleTimeString()}
+                                        </p>
+                                    </div>
+                                )}
+                                {/* Display message content or GIF */}
                                 {message.role === "gif" ? (
                                     <img src={message.content} alt="GIF" className="max-w-full" />
                                 ) : (
@@ -192,31 +218,25 @@ const Chat = () => {
                         ))}
                     </div>
                 </CardContent>
-
-                <CardFooter>
+                <CardFooter className=" border-t-2">
                     <form
                         onSubmit={(event) => {
-                            event.preventDefault()
-                            if (inputLength === 0) return
-                            setMessages([
-                                ...messages,
-                                {
-                                    role: "user",
-                                    content: input,
-                                },
-                            ])
-                            setInput("")
+                            event.preventDefault();
+                            handleSendMessage();
                         }}
-                        className="flex w-full items-center"
+                        className="flex w-full items-center mt-2"
                     >
-                        <div>
-                            <Button type="button" size="icon" onClick={handleGifClick}>
+                        <div className="relative">
+                            <Button type="button" size="icon" onClick={handleGrGifClick}>
                                 <HiOutlineGif className="h-8 w-8 text-white" />
                                 <span className="sr-only">Send GIF</span>
                             </Button>
-                            {gifUrl && (
-                                <img src={gifUrl} alt="GIF" className="h-12 w-12" />
+                            {showGifPicker && (
+                                <div className="absolute bottom-0 right-0 mt-2 mb-10">
+                                    <GifPicker tenorApiKey={"AIzaSyCQs60I94fgkOScXqqMzjOyQS9rfwVnnJ8"} onGifClick={handleGifClick} />
+                                </div>
                             )}
+
                         </div>
                         <div className="relative">
                             <Button type="button" size="icon" onClick={handleGrEmojiClick}>
@@ -224,7 +244,7 @@ const Chat = () => {
                                 <span className="sr-only">Open Emoji Picker</span>
                             </Button>
                             {showEmojiPicker && (
-                                <div className="absolute bottom-0 right-0 mt-2">
+                                <div className="absolute bottom-0 right-0 mt-2 mb-10">
                                     <EmojiPicker onEmojiClick={handleEmojiClick} />
                                 </div>
                             )}
@@ -237,7 +257,7 @@ const Chat = () => {
                             value={input}
                             onChange={(event) => setInput(event.target.value)}
                         />
-                        <Button type="submit" size="icon" disabled={inputLength === 0}>
+                        <Button type="submit" size="icon" disabled={inputLength === 0} className=" ">
                             <Send className="h-8 w-8 text-white" />
                             <span className="sr-only">Send</span>
                         </Button>

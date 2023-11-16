@@ -33,7 +33,7 @@ const data = [
 const value = [
     {
         profile: '/img/Oval.png',
-        name: 'itsdavid_R',
+        name: 'Olivia Martin',
 
     }
 ]
