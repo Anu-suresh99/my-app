@@ -175,7 +175,7 @@ const Chat = () => {
                             <div
                                 key={index}
                                 className={cn(
-                                    "flex w-max max-w-[75%] flex-col gap-2 rounded-[12px]  px-3 py-2 text-sm border ",
+                                    "flex w-max max-w-[75%] flex-col gap-2 rounded-[12px]  px-3 py-2 text-sm border mt-[700px] ",
                                     message.role === "user"
                                         ? "ml-auto bg-primary text-primary-foreground"
                                         : message.role === "gif"
@@ -207,7 +207,7 @@ const Chat = () => {
                             ])
                             setInput("")
                         }}
-                        className="flex w-full items-center space-x-2"
+                        className="flex w-full items-center"
                     >
                         <div>
                             <Button type="button" size="icon" onClick={handleGifClick}>
@@ -218,16 +218,8 @@ const Chat = () => {
                                 <img src={gifUrl} alt="GIF" className="h-12 w-12" />
                             )}
                         </div>
-                        <Input
-                            id="message"
-                            placeholder="Type your message..."
-                            className="flex-1 bg-zinc-800 text-white rounded-[12px]"
-                            autoComplete="off"
-                            value={input}
-                            onChange={(event) => setInput(event.target.value)}
-                        />
                         <div className="relative">
-                            <Button type="button" size="icon" className="w-[200px]" onClick={handleGrEmojiClick}>
+                            <Button type="button" size="icon" onClick={handleGrEmojiClick}>
                                 <GrEmoji className="h-8 w-8 text-white" />
                                 <span className="sr-only">Open Emoji Picker</span>
                             </Button>
@@ -237,6 +229,14 @@ const Chat = () => {
                                 </div>
                             )}
                         </div>
+                        <Input
+                            id="message"
+                            placeholder="Type your message..."
+                            className="flex-1 bg-zinc-800 text-white rounded-[12px]"
+                            autoComplete="off"
+                            value={input}
+                            onChange={(event) => setInput(event.target.value)}
+                        />
                         <Button type="submit" size="icon" disabled={inputLength === 0}>
                             <Send className="h-8 w-8 text-white" />
                             <span className="sr-only">Send</span>
